@@ -69,6 +69,12 @@ func (p *PriorityQueue) UpdatePriority(x interface{}, newPriority float64) {
 	heap.Fix(p.itemHeap, item.index)
 }
 
+//A simple method to know if the queue contains a value.
+func (p *PriorityQueue) Contains(x interface{}) bool {
+	item, ok p.lookup[x]
+	return ok
+}
+
 type itemHeap []*item
 
 type item struct {
