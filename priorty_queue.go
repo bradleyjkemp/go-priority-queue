@@ -71,7 +71,7 @@ func (p *PriorityQueue) UpdatePriority(x interface{}, newPriority float64) {
 
 //A simple method to know if the queue contains a value.
 func (p *PriorityQueue) Contains(x interface{}) bool {
-	item, ok p.lookup[x]
+	item, ok := p.lookup[x]
 	return ok
 }
 
