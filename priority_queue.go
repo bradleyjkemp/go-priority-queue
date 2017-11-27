@@ -59,20 +59,21 @@ func (p *PriorityQueue) Pop() (interface{}, error) {
 
 // UpdatePriority changes the priority of a given item.
 // If the specified item is not present in the queue, no action is performed.
-func (p *PriorityQueue) UpdatePriority(x interface{}, newPriority float64) {
+func (p *PriorityQueue) UpdatePriority(x interface{}, newPriority float64) bool {
 	item, ok := p.lookup[x]
 	if !ok {
-		return
+		return false
 	}
 
 	item.priority = newPriority
 	heap.Fix(p.itemHeap, item.index)
+	return true
 }
 
-//A simple method to know if the queue contains a value.
-func (p *PriorityQueue) Contains(x interface{}) bool {
-	_, ok := p.lookup[x]
-	return ok
+//A simple method to know if the queue contains a value, and it's priority
+func (p *PriorityQueue) Contains(x interface{}) (float64, bool) {
+	i, ok := p.lookup[x]
+	return i.priority, ok
 }
 
 type itemHeap []*item
