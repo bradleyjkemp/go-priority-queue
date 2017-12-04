@@ -4,34 +4,41 @@
 // Computational complexities of operations are mainly determined by container/heap.
 // In addition, a map of items is maintained, allowing O(1) lookup needed for priority updates,
 // which themselves are O(log n).
-package pq
+package gopq
 
 import (
 	"container/heap"
-	"errors"
 )
 
-// PriorityQueue represents the queue
-type PriorityQueue struct {
+type PriorityQueue interface {
+	Len() int
+	Insert(interface{}, int)
+	Pop() interface{}
+	Contains(interface{}) (int, bool)
+	UpdatePriority(interface{}, int)
+}
+
+// priorityQueue represents the queue
+type priorityQueue struct {
 	itemHeap *itemHeap
 	lookup   map[interface{}]*item
 }
 
 // New initializes an empty priority queue.
 func New() PriorityQueue {
-	return PriorityQueue{
+	return &priorityQueue{
 		itemHeap: &itemHeap{},
 		lookup:   make(map[interface{}]*item),
 	}
 }
 
 // Len returns the number of elements in the queue.
-func (p *PriorityQueue) Len() int {
+func (p *priorityQueue) Len() int {
 	return p.itemHeap.Len()
 }
 
 // Insert inserts a new element into the queue. No action is performed on duplicate elements.
-func (p *PriorityQueue) Insert(v interface{}, priority float64) {
+func (p *priorityQueue) Insert(v interface{}, priority int) {
 	_, ok := p.lookup[v]
 	if ok {
 		return
@@ -47,31 +54,30 @@ func (p *PriorityQueue) Insert(v interface{}, priority float64) {
 
 // Pop removes the element with the highest priority from the queue and returns it.
 // In case of an empty queue, an error is returned.
-func (p *PriorityQueue) Pop() (interface{}, error) {
+func (p *priorityQueue) Pop() interface{} {
 	if len(*p.itemHeap) == 0 {
-		return nil, errors.New("empty queue")
+		panic("empty queue")
 	}
 
 	item := heap.Pop(p.itemHeap).(*item)
 	delete(p.lookup, item.value)
-	return item.value, nil
+	return item.value
 }
 
 // UpdatePriority changes the priority of a given item.
 // If the specified item is not present in the queue, no action is performed.
-func (p *PriorityQueue) UpdatePriority(x interface{}, newPriority float64) bool {
+func (p *priorityQueue) UpdatePriority(x interface{}, newPriority int) {
 	item, ok := p.lookup[x]
 	if !ok {
-		return false
+		return
 	}
 
 	item.priority = newPriority
 	heap.Fix(p.itemHeap, item.index)
-	return true
 }
 
 //A simple method to know if the queue contains a value, and it's priority
-func (p *PriorityQueue) Contains(x interface{}) (float64, bool) {
+func (p *priorityQueue) Contains(x interface{}) (int, bool) {
 	i, ok := p.lookup[x]
 	if !ok {
 		return 0, false
@@ -83,7 +89,7 @@ type itemHeap []*item
 
 type item struct {
 	value    interface{}
-	priority float64
+	priority int
 	index    int
 }
 

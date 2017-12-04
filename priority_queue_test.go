@@ -1,25 +1,24 @@
-package pq
+package gopq
 
 import (
 	"sort"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestPriorityQueue(t *testing.T) {
 	pq := New()
-	elements := []float64{5, 3, 7, 8, 6, 2, 9}
+	elements := []int{5, 3, 7, 8, 6, 2, 9}
 	for _, e := range elements {
 		pq.Insert(e, e)
 	}
 
-	sort.Float64s(elements)
+	sort.Ints(elements)
 	for _, e := range elements {
-		item, err := pq.Pop()
-		if err != nil {
-			t.Fatalf(err.Error())
-		}
+		item := pq.Pop()
 
-		i := item.(float64)
+		i := item.(int)
 		if e != i {
 			t.Fatalf("expected %v, got %v", e, i)
 		}
@@ -32,10 +31,7 @@ func TestPriorityQueueUpdate(t *testing.T) {
 	pq.Insert("bar", 4)
 	pq.UpdatePriority("bar", 2)
 
-	item, err := pq.Pop()
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	item := pq.Pop()
 
 	if item.(string) != "bar" {
 		t.Fatal("priority update failed")
@@ -65,7 +61,7 @@ func TestDoubleAddition(t *testing.T) {
 		t.Fatal("queue should ignore inserting the same element twice")
 	}
 
-	item, _ := pq.Pop()
+	item := pq.Pop()
 	if item.(string) != "foo" {
 		t.Fatal("queue should ignore duplicate insert, not update existing item")
 	}
@@ -73,10 +69,8 @@ func TestDoubleAddition(t *testing.T) {
 
 func TestPopEmptyQueue(t *testing.T) {
 	pq := New()
-	_, err := pq.Pop()
-	if err == nil {
-		t.Fatal("should produce error when performing pop on empty queue")
-	}
+
+	require.Panics(t, func() { pq.Pop() }, "should panic when performing pop on empty queue")
 }
 
 func TestUpdateNonExistingItem(t *testing.T) {
@@ -89,7 +83,7 @@ func TestUpdateNonExistingItem(t *testing.T) {
 		t.Fatal("update should not add items")
 	}
 
-	item, _ := pq.Pop()
+	item := pq.Pop()
 	if item.(string) != "foo" {
 		t.Fatalf("update should not overwrite item, expected \"foo\", got \"%v\"", item.(string))
 	}
